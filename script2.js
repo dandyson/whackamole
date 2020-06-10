@@ -3,7 +3,7 @@ const scoreBoard = document.querySelector('.score');
 const moles = document.querySelectorAll('.mole');
 let lastHole;
 let timeUp = false;
-let updateScore = 0;
+let currentScore = 0;
 
 //Get a random time figure between the minimum and maximum value given
 function randomTimes(min, max) {
@@ -11,26 +11,26 @@ function randomTimes(min, max) {
 }
 
 //Grabs whatever is passed (in this case, all the holes as a NODElist) and returns a random hole from it
-
 function randomHole(holes) {
     //IDX gets a random number between 1 and 6 as the length of holes is 6 as it has 6 elements
-    const idx = Math.floor(Math.random() * holes.length);
+    const random = Math.floor(Math.random() * holes.length);
 
     //hole has assigned to it a randomly indexed hole each time, as it has idx on the end (which will be between 1 and 6) and returns the 
     //hole that matches that index
-    const hole = holes[idx];
+    const currentHole = holes[random];
 
     //If the next hole is the same as the hole that appeared when we ran before, using recursion just run the function again
-    if (hole === lastHole) {
-        console.log(' Repeat');
+    if (currentHole === lastHole) {
+        console.log('a repeat!');
         return randomHole(holes);
     }
-
     //lastHole stores the current run hole, so that when the function is next run, it has the previous hole stored (see above)
-    lastHole = hole;
-    return hole;
+    lastHole = currentHole;
+    return currentHole;
 }
 
+
+//Mole appear function
 function peep() {
     //assign a random time to TIME and assign a random hole to HOLE each time this function runs
     const time = randomTimes(20, 1000);
@@ -42,36 +42,41 @@ function peep() {
     //Timeout === do something AFTER a certain amount of time. In this case, remove the up class after a random time from the 
     //TIME variable, which will make the mole go down again
     setTimeout(() => {
-        hole.classList.remove('up')
+        hole.classList.remove('up');
         //If the timeUp variable is set to the opposite (true), stop running the peep() function. Otherwise, run peep (recursion)
         if (!timeUp) peep();
     }, time);
-}
 
-function startGame() {
+}
+//START GAME FUNCTION
+function startGame(e) {
+    console.log(e);
     //Reset scoreboard
     scoreBoard.textContent = 0;
     //Make sure timeUp is reset to false so the game can start
     timeUp = false;
-    //Reset previous score
-    updateScore = 0;
     //Run the game with peep
     peep();
+    //Reset previous score
+    currentScore = 0;
     //After 10 seconds, turn timeUp to true to stop the game after 10 seconds!! The 'game over' code
-    setTimeout(() => timeUp = true, 10000);
+    setTimeout(() => {
+        timeUp = true;
+        console.log('time is up!');
+    }, 10000);
 }
 
-//Everytime you successfully catch a mole by clicking on it, it goes down and a point is added to the scoreboard
+//BONK FUNCTION - Everytime you successfully catch a mole by clicking on it, it goes down and a point is added to the scoreboard
 function bonk(e) {
-    console.log(e);
     //The anti-cheat code! Stops any unauthentic clicks from counting
     if (!e.isTrusted) return;
     //Increase score by 1
-    updateScore++;
+    currentScore++;
     //Remove the up class from the clicked mole making it go back down
     this.parentNode.classList.remove('up');
+    console.log(this);
     //Update the scoreboard with the new score value
-    scoreBoard.textContent = updateScore;
+    scoreBoard.textContent = currentScore;
 }
 
 //Add event listener to each mole and run the bonk function when clicked
